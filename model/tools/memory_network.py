@@ -128,3 +128,48 @@ class Memory_Network(nn.Module):
             feat = torch.cat([torch.unsqueeze(self.color_value[k, :], dim = 0) for i in range(_bs)], dim = 0)
             return feat, self.top_index[k]
             
+        def KL_divergence(self, a, b, dim, eps = 1e-8):
+            
+            b = b + eps
+            log_val = torch.log10(torch.div(a, b))
+            kl_div = torch.mul(a, log_val)
+            kl_div = torch.sum(kl_div, dim = dim)
+            
+            return kl_div
+        
+        
+    def _unsupervised_loss(self, pos_score, neg_score):
+        
+        hinge = torch.clamp(neg_score - pos_score + self.alpha, min = 0.0)
+        loss = torch.mean(hinge)
+        
+        return loss
+        
+
+def random_uniform(shape, low, high):
+    x = torch.rand(*shape)
+    result = (high - low) * x + low
+    
+    return result
+    
+
+class ResNet18(nn.Module):
+    def __init__(self, pre_trained = True, require_grad = False):
+        super(ResNet18, self).__init__()
+        self.model = models.resnet18(pretrained = True)       
+        
+        self.body = [layers for layers in self.model.children()]
+        self.body.pop(-1)
+        
+        self.body = nn.Sequential(*self.body)
+        
+        if not require_grad:
+            for parameter in self.parameters():
+                parameter.requires_grad = False
+                
+    def forward(self, x):
+        x = self.body(x)
+        x = x.view(-1, 512)
+        return x
+
+        

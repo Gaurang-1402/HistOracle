@@ -42,3 +42,33 @@ class Memory_Network(nn.Module):
             q = self.body(x)
             q = F.normalize(q, dim=1)
             return q
+
+        def unsupervised_loss(self, query, color_feat, color_thres):
+        
+            bs = query.size()[0]
+            cosine_score = torch.matmul(query, torch.t(self.spatial_key))
+            
+            top_k_score, top_k_index = torch.topk(cosine_score, self.top_k, 1)
+            
+            ### For unsupervised training
+            color_value_expand = torch.unsqueeze(torch.t(self.color_value), 0)
+            color_value_expand = torch.cat([color_value_expand[:,:,idx] for idx in top_k_index], dim = 0)
+            
+            color_feat_expand = torch.unsqueeze(color_feat, 2)
+            color_feat_expand = torch.cat([color_feat_expand for _ in range(self.top_k)], dim = 2)
+            
+            #color_similarity = self.KL_divergence(color_value_expand, color_feat_expand, 1)
+            color_similarity = torch.sum(torch.mul(color_value_expand, color_feat_expand),dim=1)
+            
+            #loss_mask = color_similarity < color_thres
+            loss_mask = color_similarity > color_thres
+            loss_mask = loss_mask.float()
+            
+            pos_score, pos_index = torch.topk(torch.mul(top_k_score, loss_mask), 1, dim = 1)
+            neg_score, neg_index = torch.topk(torch.mul(top_k_score, 1 - loss_mask), 1, dim = 1)
+            
+            loss = self._unsupervised_loss(pos_score, neg_score)
+            
+            return loss
+
+        

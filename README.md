@@ -1,5 +1,22 @@
+
 #### **Submission Category Age group** → **18+**
 #### **Submission Track** → **Communication** 💬
+
+## Usage
+
+1. Start the Docker containers:
+  ```
+    docker-compose up
+  ```
+2. The application will be accessible at:
+  ```
+    localhost:3333
+  ```
+
+
+> [!NOTE]  
+> Don't forget to add your own credials to the `.env` file. Setup the SSO config in IAM while configuring the GCP datastore.
+
 
 ![image.png](https://user-images.githubusercontent.com/48355572/214252830-b5c764db-25c2-451a-b74c-876423f81917.png)
 

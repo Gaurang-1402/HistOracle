@@ -71,4 +71,47 @@ class Memory_Network(nn.Module):
             
             return loss
 
+
+
+        def memory_update(self, query, color_feat, color_thres, top_index):
+        
+            cosine_score = torch.matmul(query, torch.t(self.spatial_key))
+            top1_score, top1_index = torch.topk(cosine_score, 1, dim = 1)
+            top1_index = top1_index[:, 0]
+            top1_feature = self.spatial_key[top1_index]
+            top1_color_value = self.color_value[top1_index]
+            
+            #color_similarity1 = self.KL_divergence(top1_color_value, color_feat, 1)
+            color_similarity = torch.sum(torch.mul(top1_color_value, color_feat),dim=1)
+                
+            #memory_mask = color_similarity < color_thres
+            memory_mask = color_similarity > color_thres
+            self.age = self.age + 1.0
+            
+            ## Case 1 update
+            case_index = top1_index[memory_mask]
+            self.spatial_key[case_index] = F.normalize(self.spatial_key[case_index] + query[memory_mask], dim = 1)
+            self.age[case_index] = 0.0
+            #if torch.sum(memory_mask).cpu().numpy()==1:
+            #    print(top_index,'update',self.top_index[case_index],color_similarity)
+            
+            ## Case 2 replace
+            memory_mask = 1.0 - memory_mask
+            case_index = top1_index[memory_mask]
+            
+            random_noise = random_uniform((self.mem_size, 1), -self.age_noise, self.age_noise)[:, 0]
+            random_noise = random_noise.to(self.device)
+            age_with_noise = self.age + random_noise
+            old_values, old_index = torch.topk(age_with_noise, len(case_index), dim=0)
+            
+            self.spatial_key[old_index] = query[memory_mask]
+            self.color_value[old_index] = color_feat[memory_mask]
+            #if torch.sum(memory_mask).cpu().numpy()==1:
+            #    print(top_index[memory_mask],'replace',self.top_index[old_index],color_similarity)
+            #pdb.set_trace()
+            self.top_index[old_index] = top_index[memory_mask]
+            self.age[old_index] = 0.0
+            
+            return torch.sum(memory_mask).cpu().numpy()==1 # for batch size 1, return number of replace
+
         

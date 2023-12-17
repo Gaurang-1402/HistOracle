@@ -32,3 +32,13 @@ class Memory_Network(nn.Module):
         
         self.color_value.requires_grad = False
         self.spatial_key.requires_grad = False
+
+        self.Linear = nn.Linear(512, spatial_feat_dim)
+        self.body = [self.ResNet18, self.Linear]
+        self.body = nn.Sequential(*self.body)
+        self.body = self.body.to(self.device)
+
+        def forward(self, x):
+            q = self.body(x)
+            q = F.normalize(q, dim=1)
+            return q

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "/pb";
+import "google/protobuf/timestamp.proto";
+service UserService {
+  rpc GetUserCount(UserRequest) returns (UserCountResponse);
+}
+
+message UserRequest {
+
+}
+
+message UserCountResponse {
+  repeated string users = 1;
+  google.protobuf.Timestamp uptime = 2;
+  google.protobuf.Timestamp timeElapsed = 3;
+}

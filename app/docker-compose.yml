@@ -1,0 +1,27 @@
+services:
+  app:
+    image: ${PROJECT_NAME}:${IMAGE_VERSION}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    build:
+      context: .
+      args:
+        WORKDIR: ${WORKDIR}
+        NODE_IMAGE_TAG: ${NODE_IMAGE_TAG}
+    ports:
+      - ${APP_PORT}:3000
+    tty: true
+    restart: always
+    volumes:
+      - .:${WORKDIR}
+    # entrypoint: >
+    #   sh -c "
+    #     npm install &&
+    #     npm start
+    #   "
+    # entrypoint: >
+    #   sh -c "
+    #     npm build &&
+    #     serve -s build
+    #   "
+    

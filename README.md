@@ -1,19 +1,4 @@
 
-#### **Submission Category Age group** → **18+**
-#### **Submission Track** → **Communication** 💬
-
-## Usage
-
-1. Start the Docker containers:
-  ```
-    docker-compose up
-  ```
-2. The application will be accessible at:
-  ```
-    localhost:3333
-  ```
-
-
 > [!NOTE]  
 > Don't forget to add your own credials to the `.env` file. Setup the SSO config in IAM while configuring the GCP datastore.
 
@@ -39,6 +24,22 @@ We built the interface using React.js and MaterialUI. After a seamless Single Si
 ![image.png](https://i.postimg.cc/9QyMDskK/image.png)
 
 OpenAI's ChatGPT API scrapes metadata, including images, for historical sites. We've created a pipeline connecting these with preprocessed audio from Elevenlabs. Using the Audio-Visual Correlation Transformer (AVCT), we generate one-shot talking face animations, inferring motions from visual images and sample audio. Our architecture uses gRPC for high-performance APIs in microservices, with a Dockerized backend. The ChatGPT-powered chatbot works seamlessly! 
+
+
+#### **Submission Category Age group** → **18+**
+#### **Submission Track** → **Communication** 💬
+
+## Usage
+
+1. Start the Docker containers:
+  ```
+    docker-compose up
+  ```
+2. The application will be accessible at:
+  ```
+    localhost:3333
+  ```
+
 
 
 ## Challenges we ran into 😤

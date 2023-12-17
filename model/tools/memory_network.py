@@ -114,4 +114,17 @@ class Memory_Network(nn.Module):
             
             return torch.sum(memory_mask).cpu().numpy()==1 # for batch size 1, return number of replace
 
-        
+        def topk_feature(self, query, top_k = 1):
+            _bs = query.size()[0]
+            cosine_score = torch.matmul(query, torch.t(self.spatial_key))
+            topk_score, topk_index = torch.topk(cosine_score, top_k, dim = 1)
+            
+            topk_feat = torch.cat([torch.unsqueeze(self.color_value[topk_index[i], :], dim = 0) for i in range(_bs)], dim = 0)
+            topk_idx = torch.cat([torch.unsqueeze(self.top_index[topk_index[i]], dim = 0) for i in range(_bs)], dim = 0)
+            
+            return topk_feat, topk_idx, topk_index
+
+        def get_feature(self, k, _bs):
+            feat = torch.cat([torch.unsqueeze(self.color_value[k, :], dim = 0) for i in range(_bs)], dim = 0)
+            return feat, self.top_index[k]
+            
